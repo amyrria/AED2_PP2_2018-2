@@ -29,7 +29,7 @@ public:
     void enfileirarPrioridade(T &item);
     T desenfileirar();
     NodeFila<T> * getFrente(){return this->frente->prox;}
-    int comparar()const;
+    int comparar();
     bool empty();
 
     ~Fila() {
@@ -76,7 +76,7 @@ template <class T> T Fila<T>::desenfileirar()
     }
 
 }
-template <class T> int Fila<T>::comparar () const
+template <class T> int Fila<T>::comparar ()
 { 
 	NodeFila<T> *node = frente;
 	if(!empty())return node->getItem() > node->getProx()->getItem();
@@ -132,50 +132,40 @@ public:
     }
     int getV(){ return V; }
 
-    int dijsktra (int V, int src){
+    int * dijsktra (int V, int src){
+
     	Fila<T> fila; 
-        int i; 
         bool *visitado = new bool[V+1]; 
         int *caminho = new int[V+1];
         double *distancia = new double[V+1];
 
-        for(int i = 1; i < V+1; i++) visitado[i] = false; distancia[i] = inf;
+        for(int i = 1; i < V+1; i++){ visitado[i] = false; distancia[i] = inf;}
 
         distancia[src] = 0;
         
         visitado[src] = true;
-        predecessor[src] = inf;
+        caminho[src] = inf;
         fila.enfileirar(src , distancia[src]);
 
         int count = 1;
         while(!fila.empty()) 
         { 
-            int u = fila.comparar();
+            src = fila.comparar();
 
-            visitado[u] = true;
-            // Update dist value of the adjacent vertices of the picked vertex.
+            visitado[src] = true;
+
             for (int v = 1; v < V+1; v++) {
             	count++;
-            	if (!visitado[v] && adj[u][v] && distancia[u] != inf && distancia[v]> distancia[u]+adj[u][v]){ 
-            		distancia[v] = distancia[u] + adj[u][v];
+            	if (!visitado[v] && adj[src][v] && distancia[src] != inf && distancia[v]> distancia[src]+adj[src][v]){ 
+            		distancia[v] = distancia[src] + adj[src][v];
             		fila.enfileirar(v,distancia[v]);
             		caminho[count]=v;
 
             	}
             }
-            // for (int i = src; i < V+1; i++){
-            // 	for (int j = 1; j < V+1; j++)
-            // 	{
-            // 		else (!visitado[j] && distancia[j] > distancia[src] + adj[src][j]){
-            // 			distancia[j] = distancia[src]+ adj[src][j];
-            // 			fila.enfileirar(j,distancia[j]);
-            // 			visitado[src]=true;
-            // 		}
-            // 	}
-            // }
 
         }
-        return caminho;
+        return caminho; //deveria retornar o menor caminho
     }
 };
 
@@ -183,23 +173,25 @@ int main(){
     int brain_n, brain_m, block_n, block_m, u, v, block_in, block_out, qtd_sick, sick;
     float weight;
     cin >> brain_n >> brain_m;
-    Graph<float> brain(brain_n), *block = new Graph<float>[brain_n+1];
+    Graph<int> brain(brain_n), *block = new Graph<int>[brain_n+1];
     for(int i = 1; i <= brain_m; i++){
         cin >> u >> v >> weight;
         brain.addEdge(u, v, weight);
     }
     cin >> block_in >> block_out;
-        for(int i = 1; i <= brain_n; i++){
-            cin >> block_n >> block_m >> qtd_sick;
-      for(int j = 1; j <= qtd_sick; j++){
-        cin >> sick;
-      }
-            block[i].createGraph(block_n);
-      for(int j = 1; j <= block_m; j++){
-        cin >> u >> v >> weight;
-        block[i].addEdge(u, v, weight);
-      }
+    for(int i = 1; i <= brain_n; i++){
+        cin >> block_n >> block_m >> qtd_sick;
+        for(int j = 1; j <= qtd_sick; j++) cin >> sick;
+        
+        block[i].createGraph(block_n);
+
+        for(int j = 1; j <= block_m; j++){
+            cin >> u >> v >> weight;
+            block[i].addEdge(u, v, weight);
         }
-    dijkstra(Graph<float>,1);
+    }
     block[1].print();
+
+    int *caminho = brain.dijsktra(brain_m, block_in);
+    cout << caminho[1]<<"-"<<caminho[2] <<endl; //nao lembro de como imprimir isso
 }
