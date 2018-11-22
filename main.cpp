@@ -1,5 +1,6 @@
 #include <iostream>
 #include "graph.h"
+#include "dijkstra.h"
 using namespace std;
 int main(){
     int brain_n, brain_m, block_n, block_m, u, v, block_in, block_out, qtd_sick, sick;
