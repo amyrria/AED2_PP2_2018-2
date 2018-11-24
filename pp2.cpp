@@ -1,92 +1,96 @@
 #include <iostream>
 #include<iomanip>
 
-#define inf -1
+#define inf 999
+
 using namespace std;
-template <class T> class NodeFila 
-{
+
+template <class T> class NodeFila{
 public:
     T item;
-    double custo;
+    double dist;
     NodeFila *prox;
-    NodeFila(const T &item = T(),const double&custo = 0, NodeFila *n = NULL) : item(item), custo(custo), prox(n){}
-    ~NodeFila(){}
-    //void setItem(T Item){this->Item = Item;}
-    T getItem(){return this->item;}
-    T getCusto(){return this->custo;}
-    NodeFila *getProx(){return this->prox;}    
-    //void setProx(NodeFila *prox){this->prox = prox;}
+    NodeFila *ant;
+    NodeFila(const T &item = T(), NodeFila *proximo = NULL, NodeFila *anterior = NULL) : item(item), prox(proximo), ant(anterior){}
+    T getItem(){return item;}
+    double getDist(){return dist;}
+    NodeFila *getProx(){return prox;}
+    NodeFila *getAnt(){return ant;}
+    void setDist(double dist) {this->dist = dist;}
 };
 
-template <class T> class Fila 
-{
-public:
+template <class T> class Fila{
+private:
     int tamanho;
     NodeFila<T> *frente, *atras;
 public:
-    Fila();
-    void enfileirar(T &item, double custo);
-    void enfileirarPrioridade(T &item);
-    T desenfileirar();
-    NodeFila<T> * getFrente(){return this->frente->prox;}
-    int comparar();
-    bool empty();
-
+    Fila(){
+        frente = new NodeFila<T>();
+        atras = new NodeFila<T>();
+        tamanho = 0;
+    }
     ~Fila() {
-    	delete frente;
-    	delete atras;
-	}
+        delete frente;
+        delete atras;
+    }
+    void enfileirar(T &item){
+        if (!empty()) {
+            NodeFila<T> *ultNode = atras->ant;
+            NodeFila<T> *newNode = new NodeFila<T>(item, NULL, ultNode);
+            ultNode->prox = newNode;
+            atras->ant = newNode;
+            tamanho++;
+        }
+        else {
+            NodeFila<T> *newNode = new NodeFila<T>(item);
+            frente->prox = newNode;
+            atras->ant = newNode;
+            tamanho++;
+        }
+    }
+    T desenfileirar(){
+        if(!empty()){
+            NodeFila<T> *aux = frente;
+            frente = aux->getProx();
+            tamanho--;
+            T item = aux->getItem();
+            delete aux;
+            return item;
+        }else{
+            return T();
+        }
+
+    }
+    int getTam(){return tamanho;}
+    bool empty(){return (this->tamanho == 0);}
+    NodeFila<T> * getFrente(){return this->frente->prox;}
+    NodeFila<T> extract_min(){
+        NodeFila<T> *it = frente->getProx();
+        NodeFila<T> *menor = it;
+        while(it!=NULL){
+            if (menor->getDist() > it->getDist()){
+                menor = it;
+            }
+            it = it->getProx();
+        }
+
+        if(menor->ant!=NULL){
+            menor->ant->prox = menor->prox;
+        }else{
+            frente = menor->prox;
+        }
+        if (menor->prox!=NULL){
+            menor->prox->ant = menor->ant;
+        }else{
+            atras = menor->ant;
+        }
+
+        NodeFila<T> retorno = *menor;
+        delete menor;
+        return retorno;
+    }
 };
 
-template <class T> Fila<T>::Fila() 
-{
-    frente = new NodeFila<T>();
-    atras = new NodeFila<T>();
-    tamanho = 0;
-
-}
-template <class T> void Fila<T>::enfileirar(T& item, double custo) 
-{
-    NodeFila<T> *qNode = new NodeFila<T>(item,custo);
-    atras->prox = qNode;
-    atras = qNode;
-    if (tamanho==0) frente = atras;
-    tamanho++;
-}
-template <class T> void Fila<T>::enfileirarPrioridade(T& item) 
-{
-    NodeFila<T> *qNode = new NodeFila<T>(item, 0);
-    atras->prox = qNode;
-    atras = qNode;
-    if (tamanho==0) frente = atras;
-    tamanho++;
-}
-
-template <class T> T Fila<T>::desenfileirar()
-{
-    if(!empty()){
-        NodeFila<T> *aux = frente;
-        frente = aux->getProx();
-        tamanho--;
-        T item = aux->getItem();
-        delete aux;
-        return item;
-    }else{
-        return T();
-    }
-
-}
-template <class T> int Fila<T>::comparar ()
-{ 
-	NodeFila<T> *node = frente;
-	if(!empty())return node->getItem() > node->getProx()->getItem();
-	else{
-		return node->getItem();
-	}
-
-} 
-
-template <class T> bool Fila<T>::empty(){return (this->tamanho == 0);}
 
 template <class T> class Graph
 { 
@@ -132,40 +136,25 @@ public:
     }
     int getV(){ return V; }
 
-    int * dijsktra (int V, int src){
-
-    	Fila<T> fila; 
-        bool *visitado = new bool[V+1]; 
-        int *caminho = new int[V+1];
-        double *distancia = new double[V+1];
-
-        for(int i = 1; i < V+1; i++){ visitado[i] = false; distancia[i] = inf;}
-
-        distancia[src] = 0;
-        
-        visitado[src] = true;
-        caminho[src] = inf;
-        fila.enfileirar(src , distancia[src]);
-
-        int count = 1;
-        while(!fila.empty()) 
-        { 
-            src = fila.comparar();
-
-            visitado[src] = true;
-
-            for (int v = 1; v < V+1; v++) {
-            	count++;
-            	if (!visitado[v] && adj[src][v] && distancia[src] != inf && distancia[v]> distancia[src]+adj[src][v]){ 
-            		distancia[v] = distancia[src] + adj[src][v];
-            		fila.enfileirar(v,distancia[v]);
-            		caminho[count]=v;
-
-            	}
-            }
-
+    void dijsktra (int s){
+        // INICIALIZA(G,s)
+        NodeFila<T> *vetorNode = new NodeFila<T>[getV()+1];
+        for (int i = 1; i <= getV(); i++){
+            vetorNode[i].dist = inf;
+            vetorNode[i].ant = NULL; 
         }
-        return caminho; //deveria retornar o menor caminho
+        vetorNode[s].dist = 0;
+
+        Fila<NodeFila<T>> S;
+        Fila<NodeFila<T>> Q;
+        for (int i = 1; i <= getV(); i++){
+            Q.enfileirar(vetorNode[i]);
+        }
+        NodeFila<T> u;
+        // while(!Q.empty()){
+            // EXTRACT-MIN(Q)
+            u = Q.extract_min();
+        // }
     }
 };
 
@@ -191,7 +180,8 @@ int main(){
         }
     }
     block[1].print();
+    brain.print();
+    brain.dijsktra(1);
 
-    int *caminho = brain.dijsktra(brain_m, block_in);
-    cout << caminho[1]<<"-"<<caminho[2] <<endl; //nao lembro de como imprimir isso
-}
+}    
+    
