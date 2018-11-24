@@ -88,6 +88,9 @@ public:
 
         NodeFila<T> retorno = *menor;
         delete menor;
+        cout<"antes: "<<tamanho<<endl;
+        tamanho--;
+        cout<<"depois: "<<tamanho<<endl;
         return retorno;
     }
 };
@@ -152,10 +155,10 @@ public:
             Q.enfileirar(vetorNode[i]);
         }
         NodeFila<NodeFila<T>> u;
-        // while(!Q.empty()){
+        while(!Q.empty()){
             // EXTRACT-MIN(Q)
             u = Q.extract_min();
-        // }
+        }
     }
 };
 
