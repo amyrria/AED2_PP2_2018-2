@@ -62,7 +62,7 @@ public:
 
     }
     int getTam(){return tamanho;}
-    bool empty(){return (this->tamanho == 0);}
+    bool empty(){return tamanho == 0;}
     NodeFila<T> * getFrente(){return this->frente->prox;}
 
     NodeFila<T> extract_min(){
@@ -78,19 +78,19 @@ public:
         if(menor->ant!=NULL){
             menor->ant->prox = menor->prox;
         }else{
-            frente = menor->prox;
+            frente->prox = menor->prox;
         }
         if (menor->prox!=NULL){
             menor->prox->ant = menor->ant;
         }else{
-            atras = menor->ant;
+            atras->ant = menor->ant;
         }
 
         NodeFila<T> retorno = *menor;
         delete menor;
-        cout<"antes: "<<tamanho<<endl;
+        cout<<"Deleta: "<<tamanho<<endl;
         tamanho--;
-        cout<<"depois: "<<tamanho<<endl;
+        // cout<<"depois: "<<tamanho<<endl;
         return retorno;
     }
 };
