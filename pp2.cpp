@@ -64,6 +64,7 @@ public:
     int getTam(){return tamanho;}
     bool empty(){return (this->tamanho == 0);}
     NodeFila<T> * getFrente(){return this->frente->prox;}
+
     NodeFila<T> extract_min(){
         NodeFila<T> *it = frente->getProx();
         NodeFila<T> *menor = it;
@@ -150,7 +151,7 @@ public:
         for (int i = 1; i <= getV(); i++){
             Q.enfileirar(vetorNode[i]);
         }
-        NodeFila<T> u;
+        NodeFila<NodeFila<T>> u;
         // while(!Q.empty()){
             // EXTRACT-MIN(Q)
             u = Q.extract_min();
