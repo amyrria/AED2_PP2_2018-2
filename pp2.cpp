@@ -1,7 +1,7 @@
 #include <iostream>
 #include<iomanip>
-
-#define inf 999
+#include<climits> 
+#define inf (int)1e6
 
 using namespace std;
 
@@ -49,56 +49,121 @@ template <class T> class No{
             ant = a;
         }
 };
+class Grafo;
 
 template <class T> class Fila{
 	private:
-        int tamanho;
+        int tamFila;
         No<T> *frente, *atras;
+        No<T> *vetor;
+        int tamHeap;
+
 	public:
         Fila(){
             frente = new No<T>();
             atras = new No<T>();
-            tamanho = 0;
+            tamFila = 0;
         }
         ~Fila() {
                 delete frente;
                 delete atras;
         }
+        void troca (Vertice *u, Vertice *v){
+            Vertice aux = *u;
+            *u = *v;
+            *v = aux;
+        }
+
+        int pai(int i){return i/2;}
+        int esq(int i) { return 2*i; }
+        int dir(int i) { return 2*i + 1;} 
+
+        void criar_FP(int tam){
+            tamHeap = 0;
+            vetor = new No<T>[tam];
+        }
+        void insere (No<T> item){
+            tamHeap++; 
+            int i = tamHeap; 
+            vetor[i] = item; //id+ distancia + antecessor
+          
+            // Corrige as propriedades do heap 
+            while (i != 1 && vetor[pai(i)].getItem().getDistancia() > vetor[i].getItem().getDistancia()) 
+            { 
+               troca(&vetor[i].getItem(), &vetor[pai(i)].getItem()); 
+               i = pai(i); 
+            } 
+        }
+        Vertice extractMin() 
+        {  
+            if (tamHeap == 1) 
+            { 
+                tamHeap--; 
+                return vetor[0]; 
+            } 
+          
+            // armazena o valor minimo 
+            Vertice root = vetor[0]; 
+            vetor[0] = vetor[tamHeap-1]; 
+            tamHeap--; 
+            MinHeapify(0); 
+          
+            return root; 
+        } 
+        void MinHeapify(int i) 
+        { 
+            int l = esq(i); 
+            int r = dir(i); 
+            int min = i; 
+            if (l < tamHeap && vetor[l] < vetor[i]) 
+                min = l; 
+            if (r < tamHeap && vetor[r] < vetor[min]) 
+                min = r; 
+            if (min != i) 
+            { 
+                troca(&vetor[i], &vetor[min]); 
+                MinHeapify(min); 
+            } 
+        } 
+
+
         void enfileirar(T &item){
             if (!empty()) {
-                No<T> *ultNo = atras->getAnt();
-                No<T> *no = new No<T>(item, ultNo);
+                No<T> *ultNo = atras->getAnt();//ultimo no
+                No<T> *no = new No<T>(item, ultNo);//novo no
                 ultNo->setProx(no);
                 atras->setAnt(ultNo->getProx());
-                tamanho++;
+                tamFila++;
             }
             else {
                 No<T> *no = new No<T>(item);
                 atras->setAnt(no);
                 frente->setProx(atras->getAnt());
-                tamanho++;
+                tamFila++;
             }
         }
         T desenfileirar(){
             if(!empty()){
-                No<T> *aux = frente->getProx();
-                frente->setProx(aux->getProx());
-                tamanho--;
-                T item = aux->getItem();
-                // delete aux;
+                No<T> *aux = frente;//no de vertice No<Vertice>
+                if (frente == atras) frente = atras = 0; //nenhum nó permance dps da exclusao
+                else{
+                    frente = frente->getProx();
+                }
+                T item = aux->getItem();//item = Vertice
+                delete aux;
+                tamFila--;
                 return item;
             }else{
                 return T();
             }
         }
-        int getTam(){return tamanho;}
-        bool empty(){return tamanho == 0;}
+        int getTam(){return tamFila;}
+
+        bool empty(){return tamFila == 0;}
+        bool emptyFP(){return tamHeap == 0;}
+
         No<T> * getFrente(){return frente;}
 };
-
-No<Vertice> extract_min(Fila<Vertice> *f){
-	return f->desenfileirar();
-}
 
 class Grafo{
     private:
@@ -168,20 +233,25 @@ void RELAXA(Vertice *u, Vertice *v, float w){
 
 void DIJKSTRA(Grafo *g, int s){
 	INICIALIZA(g, s);
-	Fila<Vertice*> S;
-    Fila<Vertice*> Q;
-    Vertice *it = g->getVertice();
+	Fila<Vertice> S;
+    Fila<Vertice> Q;
+    Vertice *it = g->getVertice(); //me retorna um vertice(id,distancia,antecessor)
+
     // Q = G.V
+    Vertice v;
     for(int i = 1; i <= g->getV(); i++){
-        Q.enfileirar(&it[i]);
+        v = it[i]; 
+        Q.insere(it[i]);//tentando adicionar o valor do ponteiro, o vertice
     }
     Vertice u;
-    while(!Q.empty()){
+    while(!Q.emptyFP()){
         u = Q.desenfileirar();
+        //u = extract_min(Q);
         S.enfileirar(u);
         for(int i = 1; i <= g->getV(); i++){
             if(g->getPeso(u.getId(), i) > 0){
-                RELAXA()
+                //RELAXA(u,v,w) u = vertice, v = vertice, w = distancia
+                //RELAXA(u,v, g->getPeso(u.getId(), i));
             }
         }
     }
@@ -191,7 +261,7 @@ int main(){
     int brain_n, brain_m, block_n, block_m, u, v, block_in, block_out, qtd_sick, sick;
     float weight;
     cin >> brain_n >> brain_m;
-    Grafo<int> brain(brain_n), *block = new Grafo<int>[brain_n+1];
+    Grafo brain(brain_n), *block = new Grafo[brain_n+1];
     for(int i = 1; i <= brain_m; i++){
         cin >> u >> v >> weight;
         brain.addEdge(u, v, weight);
@@ -210,7 +280,7 @@ int main(){
     }
     block[1].print();
     brain.print();
-    brain.dijsktra(1);
+    //brain.dijsktra(1);
 
 }    
     
