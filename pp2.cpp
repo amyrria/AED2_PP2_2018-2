@@ -74,7 +74,7 @@ template <class T> class Fila{
             *v = aux;
         }
 
-        int pai(int i){return i/2;}
+        int pai(int i) {return i/2;}
         int esq(int i) { return 2*i; }
         int dir(int i) { return 2*i + 1;} 
 
@@ -82,7 +82,7 @@ template <class T> class Fila{
             tamHeap = 0;
             vetor = new No<T>[tam];
         }
-        void insere (No<T> item){
+        void insere (T item){
             tamHeap++; 
             int i = tamHeap; 
             vetor[i] = item; //id+ distancia + antecessor
@@ -235,12 +235,13 @@ void DIJKSTRA(Grafo *g, int s){
 	INICIALIZA(g, s);
 	Fila<Vertice> S;
     Fila<Vertice> Q;
+    Q.criar_FP(g->getV());
     Vertice *it = g->getVertice(); //me retorna um vertice(id,distancia,antecessor)
-
     // Q = G.V
     Vertice v;
     for(int i = 1; i <= g->getV(); i++){
-        v = it[i]; 
+        //v = it[i]; 
+        //cout<<it[i].getId()<<" - "<<it[i].getDistancia()<<endl;
         Q.insere(it[i]);//tentando adicionar o valor do ponteiro, o vertice
     }
     Vertice u;
@@ -278,9 +279,9 @@ int main(){
             block[i].addEdge(u, v, weight);
         }
     }
-    block[1].print();
-    brain.print();
-    //brain.dijsktra(1);
+    //block[1].print();
+    //brain.print();
+    DIJKSTRA(&brain,1);
 
 }    
     
