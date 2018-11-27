@@ -214,12 +214,32 @@ class Grafo{
 		float getPeso(int v1, int v2){return adj[v1][v2];}
 };
 
+void TROCA(Vertice *u, Vertice *v){
+	Vertice aux = *u;
+	*u = *v;
+	*v = aux;
+}
+
+int pai(int i) { return i/2;}
+int esq(int i) { return 2*i;}
+int dir(int i) { return 2*i + 1;} 
+
 void INICIALIZA(Grafo *g, int s){
 	Vertice *v = g->getVertice();
 	for(int i = 1; i <= g->getV(); i++){
 		v[i].setId(i);
 		v[i].setDistancia(inf);
 		v[i].setAntecessor(NULL);
+
+		int j = i;
+		// vetor[i] = item; //id+ distancia + antecessor
+		
+		// Corrige as propriedades do heap 
+		// while (j != 1 && v[pai(j)].getDistancia() > v[j].getDistancia()) 
+		// { 
+		// 	TROCA(&v[j], &v[pai(j)]); 
+		// 	j = pai(j); 
+		// } 
 	}
 	v[s].setDistancia(0);
 }
@@ -231,34 +251,21 @@ void RELAXA(Vertice *u, Vertice *v, float w){
 	}
 }
 
-int pai(int i) { return i/2;}
-int esq(int i) { return 2*i;}
-int dir(int i) { return 2*i + 1;} 
-
 void HEAPFICA(Grafo *g, int i ){
 	int l = esq(i); // l = 4
 	int r = dir(i); // r = 5
 	int min = i; // 2
-    cout<<"min: "<<i<<endl;
-
 	Vertice *A = g->getVertice();
 	int tamHeap = g->getV();
-    cout<<"A[l].getDistancia: "<<A[l].getDistancia() <<" < "<<"A[i].getDistancia: "<< A[i].getDistancia()<<endl;
 	if (l <= tamHeap && A[l].getDistancia() < A[i].getDistancia()) {
-        min = l; 
-        cout<<"L: ["<<l<<"]- getId ="<<A[l].getId()<<endl;        
-    }
-    cout<<"A[r].getDistancia: "<<A[r].getDistancia() <<" < "<<"A[i].getDistancia: "<< A[i].getDistancia()<<endl;
+		min = l; 
+	}
 	if (r <= tamHeap && A[r].getDistancia() < A[min].getDistancia()){
-        min = r; 
-        cout<<"R: ["<<r<<"]- getId ="<<A[r].getId()<<endl;
-
-    } 
-    cout<<endl;
+		min = r;
+	}
 	if (min != i) 
 	{ 
 		// TROCA(A[i], A[min])
-        cout<<"MinHEAP: "<<min<<endl;    
 		Vertice aux = A[i];
 		A[i] = A[min];
 		A[min] = aux;
@@ -270,6 +277,16 @@ void CONSTROI_HEAP(Grafo *g){
 	int tamHeap = g->getV(); // 5
 	for (int i = tamHeap/2; i >= 1; i--) // 2 à 1
 		HEAPFICA(g, i);
+}
+
+int BUSCA(Grafo *g, int v){
+	int i;
+	Vertice *it = g->getVertice();
+	for(i = 1; i <= g->getV(); i++){
+		if(v==it[i].getId())
+			break;
+	}
+	return i;
 }
 
 void DIJKSTRA(Grafo *g, int s){
@@ -288,7 +305,7 @@ void DIJKSTRA(Grafo *g, int s){
 		for(int i = 1; i <= g->getV(); i++){
 			w = g->getPeso(u->getId(), i);
 			if(w > 0){
-				v = &it[i];
+				v = &it[BUSCA(g, i)];
 				RELAXA(u,v, w);
 			}
 		}
@@ -319,21 +336,56 @@ int main(){
 	//block[1].print();
 	//brain.print();
 
-	Vertice *it = brain.getVertice();
+	// Vertice *it = brain.getVertice();
 	DIJKSTRA(&brain, block_in);
-    cout<<endl;
-	for(int i = 1; i <= brain.getV(); i++){
-		cout << i<< ": "<<it[i].getId() << " - " << it[i].getDistancia()<<endl;
-	}
+	// cout<<"id:id|w->ant\n";
+	// float w;
+	// for(int i = 1; i <= brain.getV(); i++){
+	// 	cout << i<< ":"<<it[i].getId() << "|" << it[i].getDistancia()<<"->";
+	// 	if(it[i].getAntecessor()!=NULL)
+	// 		cout <<it[i].getAntecessor()->getId()<<endl;
+	// 	else
+	// 		cout <<"NIL"<<endl;
+	// }
+	// int i;
+	// for(i = 1; i <= brain.getV(); i++){
+	// 	if(block_out==it[i].getId())
+	// 		break;
+	// }
+	// Vertice *it2 = &it[i];
+	// while(it2!=NULL){
+	// 	cout << it2->getId() << "|" << it2->getDistancia() << "->";
+	// 	it2 = it2->getAntecessor();
+	// }
+	Grafo g(8);
+	g.addEdge(1,2,5);
+	g.addEdge(1,4,8);
+	g.addEdge(1,6,15);
+	g.addEdge(2,3,6);
+	g.addEdge(2,4,4);
+	g.addEdge(2,5,9);
+	g.addEdge(3,5,11);
+	g.addEdge(3,8,15);
+	g.addEdge(4,6,15);
+	g.addEdge(4,7,13);
+	g.addEdge(5,7,12);
+	g.addEdge(5,8,13);
+	g.addEdge(6,7,12);
+	g.addEdge(7,8,12);
+	DIJKSTRA(&g, 1);
+	Vertice *it = g.getVertice();
+
 	int i;
-	for(i = 1; i <= brain.getV(); i++){
-		if(block_out==it[i].getId())
+	for(i = 1; i <= g.getV(); i++){
+		if(8==it[i].getId())
 			break;
 	}
 	Vertice *it2 = &it[i];
 	while(it2!=NULL){
-		cout << it2->getId() << " -> ";
+		cout << it2->getId() << "|" << it2->getDistancia() << "->";
 		it2 = it2->getAntecessor();
 	}
+
+
 }    
 	
