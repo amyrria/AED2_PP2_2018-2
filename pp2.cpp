@@ -239,15 +239,26 @@ void HEAPFICA(Grafo *g, int i ){
 	int l = esq(i); // l = 4
 	int r = dir(i); // r = 5
 	int min = i; // 2
+    cout<<"min: "<<i<<endl;
+
 	Vertice *A = g->getVertice();
 	int tamHeap = g->getV();
-	if (l <= tamHeap && A[l].getDistancia() < A[i].getDistancia()) 
-		min = l; 
-	if (r <= tamHeap && A[r].getDistancia() < A[min].getDistancia()) 
-		min = r; 
+    cout<<"A[l].getDistancia: "<<A[l].getDistancia() <<" < "<<"A[i].getDistancia: "<< A[i].getDistancia()<<endl;
+	if (l <= tamHeap && A[l].getDistancia() < A[i].getDistancia()) {
+        min = l; 
+        cout<<"L: ["<<l<<"]- getId ="<<A[l].getId()<<endl;        
+    }
+    cout<<"A[r].getDistancia: "<<A[r].getDistancia() <<" < "<<"A[i].getDistancia: "<< A[i].getDistancia()<<endl;
+	if (r <= tamHeap && A[r].getDistancia() < A[min].getDistancia()){
+        min = r; 
+        cout<<"R: ["<<r<<"]- getId ="<<A[r].getId()<<endl;
+
+    } 
+    cout<<endl;
 	if (min != i) 
 	{ 
 		// TROCA(A[i], A[min])
+        cout<<"MinHEAP: "<<min<<endl;    
 		Vertice aux = A[i];
 		A[i] = A[min];
 		A[min] = aux;
@@ -310,8 +321,9 @@ int main(){
 
 	Vertice *it = brain.getVertice();
 	DIJKSTRA(&brain, block_in);
+    cout<<endl;
 	for(int i = 1; i <= brain.getV(); i++){
-		cout << it[i].getId() << " - " << it[i].getDistancia()<<endl;
+		cout << i<< ": "<<it[i].getId() << " - " << it[i].getDistancia()<<endl;
 	}
 	int i;
 	for(i = 1; i <= brain.getV(); i++){
