@@ -7,172 +7,48 @@ using namespace std;
 
 class Vertice{
 	private:
-		int id;
-		float distancia;
-		Vertice* antecessor;
+		int id = 0;
+		float distancia = inf;
+		Vertice* antecessor = NULL;
 	public:
 		Vertice(){}
-		int getId(){
-			return id;
-		}
-		float getDistancia(){
-			return distancia;
-		}
-		Vertice* getAntecessor(){
-			return antecessor;
-		}
-		void setId(int id){
-			this->id = id;
-		}
-		void setDistancia(float d){
-			distancia = d;
-		}
-		void setAntecessor(Vertice* v){
-			antecessor = v;
-		}
+		int getId(){return id;}
+		float getDistancia(){return distancia;}
+		Vertice* getAntecessor(){return antecessor;}
+		void setId(int id){this->id = id;}
+		void setDistancia(float d){distancia = d;}
+		void setAntecessor(Vertice* v){antecessor = v;}
 };
 
-template <class T> class No{
+class Aresta{
 	private:
-		T item;
-		No *prox;
-		No *ant;
+		int v1;
+		int v2;
+		float peso;
 	public:
-		No(const T &item = T(), No *anterior = NULL, No *proximo = NULL) : item(item), ant(anterior), prox(proximo){}
-		T getItem(){return item;}
-		No *getProx(){return prox;}
-		No *getAnt(){return ant;}
-		void setProx(No *p){
-			prox = p;
+		Aresta(){}
+		void insere(int u, int v, float w){
+			v1 = u;
+			v2 = v;
+			peso = w;
 		}
-		void setAnt(No *a){
-			ant = a;
-		}
-};
-class Grafo;
-
-template <class T> class Fila{
-	private:
-		int tamFila;
-		No<T> *frente, *atras;
-		No<T> *vetor;
-		int tamHeap;
-
-	public:
-		Fila(){
-			frente = new No<T>();
-			atras = new No<T>();
-			tamFila = 0;
-		}
-		~Fila() {
-				delete frente;
-				delete atras;
-		}
-		void troca (Vertice *u, Vertice *v){
-			Vertice aux = *u;
-			*u = *v;
-			*v = aux;
-		}
-
-		int pai(int i) {return i/2;}
-		int esq(int i) { return 2*i; }
-		int dir(int i) { return 2*i + 1;} 
-
-		// void criar_FP(int tam){
-		// 	tamHeap = 0;
-		// 	vetor = new No<T>[tam];
-		// }
-		// void insere (T item){
-		// 	tamHeap++; 
-		// 	int i = tamHeap; 
-		// 	vetor[i] = item; //id+ distancia + antecessor
-		  
-		// 	// Corrige as propriedades do heap 
-		// 	while (i != 1 && vetor[pai(i)].getItem().getDistancia() > vetor[i].getItem().getDistancia()) 
-		// 	{ 
-		// 	   troca(&vetor[i].getItem(), &vetor[pai(i)].getItem()); 
-		// 	   i = pai(i); 
-		// 	} 
-		// }
-		// Vertice extractMin() 
-		// {  
-		// 	if (tamHeap == 1) 
-		// 	{ 
-		// 		tamHeap--; 
-		// 		return vetor[0]; 
-		// 	} 
-		  
-		// 	// armazena o valor minimo 
-		// 	Vertice root = vetor[0]; 
-		// 	vetor[0] = vetor[tamHeap-1]; 
-		// 	tamHeap--; 
-		// 	MinHeapify(0); 
-		  
-		// 	return root; 
-		// } 
-		// void MinHeapify(int i) 
-		// { 
-		// 	int l = esq(i); 
-		// 	int r = dir(i); 
-		// 	int min = i; 
-		// 	if (l < tamHeap && vetor[l] < vetor[i]) 
-		// 		min = l; 
-		// 	if (r < tamHeap && vetor[r] < vetor[min]) 
-		// 		min = r; 
-		// 	if (min != i) 
-		// 	{ 
-		// 		troca(&vetor[i], &vetor[min]); 
-		// 		MinHeapify(min); 
-		// 	} 
-		// } 
-
-
-		void enfileirar(T &item){
-			if (!empty()) {
-				No<T> *ultNo = atras->getAnt();//ultimo no
-				No<T> *no = new No<T>(item, ultNo);//novo no
-				ultNo->setProx(no);
-				atras->setAnt(ultNo->getProx());
-				tamFila++;
-			}
-			else {
-				No<T> *no = new No<T>(item);
-				atras->setAnt(no);
-				frente->setProx(atras->getAnt());
-				tamFila++;
-			}
-		}
-		T desenfileirar(){
-			if(!empty()){
-				No<T> *aux = frente;//no de vertice No<Vertice>
-				if (frente == atras) frente = atras = 0; //nenhum nó permance dps da exclusao
-				else{
-					frente = frente->getProx();
-				}
-				T item = aux->getItem();//item = Vertice
-				delete aux;
-				tamFila--;
-				return item;
-			}else{
-				return T();
-			}
-		}
-		int getTam(){return tamFila;}
-
-		bool empty(){return tamFila == 0;}
-		bool emptyFP(){return tamHeap == 0;}
-
-		No<T> * getFrente(){return frente;}
+		int getV1(){return v1;}
+		int getV2(){return v2;}
+		float getPeso(){return peso;}
+		void setV1(int v){v1 = v;}
+		void setV2(int v){v2 = v;}
+		void setPeso(float p){peso = p;}
 };
 
 class Grafo{
 	private:
 		int V;
+		int ordem;
 		float **adj;
 		Vertice *vertice;
 	public:
 		Grafo(){}
-		Grafo(int V){
+		Grafo(int V, int o){
 			this->V = V;
 			adj = new float*[V+1];
 			for(int i = 0;i <= V; ++i)
@@ -181,13 +57,14 @@ class Grafo{
 				for(int j = 0;j <= V; ++j)
 					adj[i][j] = float();
 			vertice = new Vertice[V+1];
+			ordem = o;
 		}
 		~Grafo(){
 			for(int i = 0;i <= V; ++i)
 				delete[] adj[i];
 			delete[] adj; 
 		}
-		void createGraph(int V){
+		void createGraph(int V, int o){
 			this->V = V;
 			adj = new float*[V+1];
 			for(int i = 0;i <= V; ++i)
@@ -196,6 +73,7 @@ class Grafo{
 				for(int j = 0;j <= V; ++j)
 					adj[i][j] = float();
 			vertice = new Vertice[V+1];
+			ordem = o;
 		}
 		void addEdge(int v1, int v2, float w) {
 			adj[v1][v2] = w;
@@ -209,6 +87,16 @@ class Grafo{
 				cout << endl;
 			}
 		}
+		void printVertice(){
+			for(int i=1; i<=V; i++){
+				cout << "uid: " << i;
+				cout << "\tid: " << vertice[i].getId();
+				cout << "\tDist: " << vertice[i].getDistancia();
+				cout << "\tAnt: " << (vertice[i].getAntecessor()!=NULL?vertice[i].getAntecessor()->getId():0);
+				cout << endl;
+			}
+		}
+		int getOrdem(){return ordem;}
 		int getV(){ return V; }
 		Vertice *getVertice(){return vertice;}
 		float getPeso(int v1, int v2){return adj[v1][v2];}
@@ -231,7 +119,7 @@ void INICIALIZA(Grafo *g, int s){
 		v[i].setDistancia(inf);
 		v[i].setAntecessor(NULL);
 
-		int j = i;
+		// int j = i;
 		// vetor[i] = item; //id+ distancia + antecessor
 		
 		// Corrige as propriedades do heap 
@@ -289,6 +177,26 @@ int BUSCA(Grafo *g, int v){
 	return i;
 }
 
+void INSERE_HEAP(Grafo *g, int i ){
+	Vertice *A = g->getVertice();
+	while(i != 1 && A[pai(i)].getDistancia() > A[i].getDistancia())
+	{
+		TROCA(&A[pai(i)],&A[i]);
+		i = pai(i);
+	}
+}
+
+Vertice * EXTRAI_MIN(Grafo *g, int s){
+	Vertice *it = g->getVertice();
+	int menor=s;
+	for (int i = s;i<=g->getV(); i++){
+		if(it[menor].getDistancia() > it[i].getDistancia())
+			menor = i;
+	}
+	TROCA(&it[menor],&it[s]);
+	return &it[s];
+}
+
 void DIJKSTRA(Grafo *g, int s){
 	INICIALIZA(g, s);
 	// S = 0
@@ -298,10 +206,8 @@ void DIJKSTRA(Grafo *g, int s){
 	int c_Q = 1;
 	float w;
 	while(c_Q<=g->getV()){
-		CONSTROI_HEAP(g);
-		u = &it[c_Q];
+		u = EXTRAI_MIN(g,c_Q);
 		c_Q++;
-		// S = SU{u}
 		for(int i = 1; i <= g->getV(); i++){
 			w = g->getPeso(u->getId(), i);
 			if(w > 0){
@@ -311,81 +217,85 @@ void DIJKSTRA(Grafo *g, int s){
 		}
 	}
 }
+int find_set(int i, int *parente) {
+	if (i == parente[i])
+		return i;
+	else
+		return find_set(parente[i], parente);
+}
+
+void union_set(int u, int v, int *parente) {
+    parente[u] = parente[v];
+}
+
+float KRUSKAL(Grafo &g){
+	float w, total=0.0;
+	int count =0;
+	Aresta a[g.getOrdem()];
+	int parente[g.getV()+1];
+	for (int i = 0; i <= g.getV(); i++)
+		parente[i] = i;
+	for(int y = 1; y <= g.getV(); y++){
+		for(int x = y+1; x <= g.getV(); x++){
+			w = g.getPeso(y, x);
+			if(w > 0){
+				a[count].insere(y, x, w);
+				count++;
+			}
+		}
+	}
+	// Ordena
+	for (int i = 0; i < count - 1; i++) {
+		for (int j = i+1; j < count; j++) {
+			if(a[i].getPeso() > a[j].getPeso())
+				swap(a[i], a[j]);
+		}
+	}
+
+	int uRep, vRep;
+	for (int i = 0; i < count; i++) {
+		uRep = find_set(a[i].getV1(), parente); // 0
+		vRep = find_set(a[i].getV2(), parente); // 1
+		if (uRep != vRep) {
+			total += a[i].getPeso();
+			union_set(uRep, vRep, parente);
+		}
+	}
+	return total;
+}
 
 int main(){
-	int brain_n, brain_m, block_n, block_m, u, v, block_in, block_out, qtd_sick, sick;
+	int brain_n, brain_m, block_n, block_m, u, v, block_in, block_out, *qtd_sick, sick;
 	float weight;
 	cin >> brain_n >> brain_m;
-	Grafo brain(brain_n), *block = new Grafo[brain_n+1];
+	Grafo brain(brain_n, brain_m), *block = new Grafo[brain_n+1];
+	qtd_sick = new int[brain_n+1];
 	for(int i = 1; i <= brain_m; i++){
 		cin >> u >> v >> weight;
 		brain.addEdge(u, v, weight);
 	}
 	cin >> block_in >> block_out;
 	for(int i = 1; i <= brain_n; i++){
-		cin >> block_n >> block_m >> qtd_sick;
-		for(int j = 1; j <= qtd_sick; j++) cin >> sick;
+		cin >> block_n >> block_m >> qtd_sick[i];
+		for(int j = 0; j < qtd_sick[i]; j++) cin >> sick;
 		
-		block[i].createGraph(block_n);
+		block[i].createGraph(block_n, block_m);
 
 		for(int j = 1; j <= block_m; j++){
 			cin >> u >> v >> weight;
 			block[i].addEdge(u, v, weight);
 		}
 	}
-	//block[1].print();
-	//brain.print();
-
-	// Vertice *it = brain.getVertice();
 	DIJKSTRA(&brain, block_in);
-	// cout<<"id:id|w->ant\n";
-	// float w;
-	// for(int i = 1; i <= brain.getV(); i++){
-	// 	cout << i<< ":"<<it[i].getId() << "|" << it[i].getDistancia()<<"->";
-	// 	if(it[i].getAntecessor()!=NULL)
-	// 		cout <<it[i].getAntecessor()->getId()<<endl;
-	// 	else
-	// 		cout <<"NIL"<<endl;
-	// }
-	// int i;
-	// for(i = 1; i <= brain.getV(); i++){
-	// 	if(block_out==it[i].getId())
-	// 		break;
-	// }
-	// Vertice *it2 = &it[i];
-	// while(it2!=NULL){
-	// 	cout << it2->getId() << "|" << it2->getDistancia() << "->";
-	// 	it2 = it2->getAntecessor();
-	// }
-	Grafo g(8);
-	g.addEdge(1,2,5);
-	g.addEdge(1,4,8);
-	g.addEdge(1,6,15);
-	g.addEdge(2,3,6);
-	g.addEdge(2,4,4);
-	g.addEdge(2,5,9);
-	g.addEdge(3,5,11);
-	g.addEdge(3,8,15);
-	g.addEdge(4,6,15);
-	g.addEdge(4,7,13);
-	g.addEdge(5,7,12);
-	g.addEdge(5,8,13);
-	g.addEdge(6,7,12);
-	g.addEdge(7,8,12);
-	DIJKSTRA(&g, 1);
-	Vertice *it = g.getVertice();
-
-	int i;
-	for(i = 1; i <= g.getV(); i++){
-		if(8==it[i].getId())
-			break;
-	}
-	Vertice *it2 = &it[i];
+	Vertice *it = brain.getVertice();
+	Vertice *it2 = &it[BUSCA(&brain, block_out)];
+	float total = 0;
 	while(it2!=NULL){
-		cout << it2->getId() << "|" << it2->getDistancia() << "->";
+		if (qtd_sick[it2->getId()] > 0) {
+			total += KRUSKAL(block[it2->getId()]);
+		}
 		it2 = it2->getAntecessor();
 	}
-
-
+	cout<<total;
 }    
 	
