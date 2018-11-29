@@ -55,7 +55,7 @@ class Grafo{
 				adj[i] = new float[V+1];
 			for(int i = 0;i <= V; ++i)
 				for(int j = 0;j <= V; ++j)
-					adj[i][j] = float();
+					adj[i][j] = float(-1);
 			vertice = new Vertice[V+1];
 			ordem = o;
 		}
@@ -71,7 +71,7 @@ class Grafo{
 				adj[i] = new float[V+1];
 			for(int i = 0;i <= V; ++i)
 				for(int j = 0;j <= V; ++j)
-					adj[i][j] = float();
+					adj[i][j] = float(-1);
 			vertice = new Vertice[V+1];
 			ordem = o;
 		}
@@ -210,7 +210,7 @@ void DIJKSTRA(Grafo *g, int s){
 		c_Q++;
 		for(int i = 1; i <= g->getV(); i++){
 			w = g->getPeso(u->getId(), i);
-			if(w > 0){
+			if(w >= 0){
 				v = &it[BUSCA(g, i)];
 				RELAXA(u,v, w);
 			}
@@ -238,7 +238,7 @@ float KRUSKAL(Grafo &g){
 	for(int y = 1; y <= g.getV(); y++){
 		for(int x = y+1; x <= g.getV(); x++){
 			w = g.getPeso(y, x);
-			if(w > 0){
+			if(w >= 0){
 				a[count].insere(y, x, w);
 				count++;
 			}
