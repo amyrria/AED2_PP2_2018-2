@@ -4,7 +4,7 @@
 #define inf (int)1e6
 
 using namespace std;
-//template <class T>
+
 class Vertice{
 	private:
 		int id = 0;
